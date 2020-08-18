@@ -7,38 +7,54 @@ class CPU:
 
     def __init__(self):
         """Construct a new CPU."""
-        pass
+        # ram holds 256 bytes of memory
+        self.ram = [0] * 256
+        # holding 8 general-purpose registers
+        self.reg = [0] * 8
+        # program counter (pc)
+        self.pc = 0
+        # stack pointer (sp)
+        self.sp = 7
+        # CPU running
+        self.running = True
+
+
+    def ram_read(self, address):
+        # return the ram at the specified, indexed address
+        return self.ram[address]
+
+
+    # defining a function to overwrite the ram value at the given address
+    def ram_write(self, value, address):
+        # set the ram at the specified, indexed address, as the value
+        self.ram[address] = value
+
 
     def load(self):
         """Load a program into memory."""
-
+        # instantiate address counter
         address = 0
-
-        # For now, we've just hardcoded a program:
-
-        program = [
-            # From print8.ls8
-            0b10000010, # LDI R0,8
-            0b00000000,
-            0b00001000,
-            0b01000111, # PRN R0
-            0b00000000,
-            0b00000001, # HLT
-        ]
-
-        for instruction in program:
-            self.ram[address] = instruction
-            address += 1
+        # open the file (f) as read ('r')
+        with open(filename, 'r') as f:
+            # loop through the lines in f
+            for line in f:
+                # set the variable line as a list of values on #, and stripped
+                line = line.split("#")[0].strip()
+                # if the line is blank
+                if line == '':
+                    # continue
+                    continue
+                # set the ram at the specified, indexed address, as the int of
+                # line 
+                self.ram[address] = int(line, 2)
+                # increment the address by one to move to the next line and ram
+                # spot
+                address += 1
 
 
     def alu(self, op, reg_a, reg_b):
         """ALU operations."""
 
-        if op == "ADD":
-            self.reg[reg_a] += self.reg[reg_b]
-        #elif op == "SUB": etc
-        else:
-            raise Exception("Unsupported ALU operation")
 
     def trace(self):
         """
@@ -60,6 +76,7 @@ class CPU:
 
         print()
 
+
     def run(self):
         """Run the CPU."""
-        pass
+        
