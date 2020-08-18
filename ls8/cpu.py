@@ -123,3 +123,6 @@ class CPU:
                 self.pc += 3
             else: 
                 print("Instruction not valid")
+
+
+## python ls8.py from ls8 folder
