@@ -11,7 +11,6 @@ SUB = 0b10100001 # subtract
 MUL = 0b10100010 # multiply
 
 
-
 class CPU:
     """Main CPU class."""
 
@@ -37,35 +36,38 @@ class CPU:
         # set the ram at the specified, indexed address, as the value
         self.ram[address] = value
 
-    def load(self):
+    def load(self, filename=None):
         """Load a program into memory."""
-        
-        address = 0
-        # For now, we've just hardcoded a program:
-        program = [
-            # From print8.ls8
-            0b10000010,  # LDI R0,8
-            0b00000000,
-            0b00001000,
-            0b01000111,  # PRN R0
-            0b00000000,
-            0b00000001,  # HLT
-        ]
-        for instruction in program:
-            self.ram[address] = instruction
-            address += 1
 
+        ## MONDAY        
         # address = 0
-        # with open(filename, 'r') as f:
-        #     for line in f:
-        #         line = line.split("#")[0].strip()
-        #         if line == '':
-        #             continue
-        #         self.ram[address] = int(line, 2)
-        #         address += 1
+        # # For now, we've just hardcoded a program:
+        # program = [
+        #     # From print8.ls8
+        #     0b10000010,  # LDI R0,8
+        #     0b00000000,
+        #     0b00001000,
+        #     0b01000111,  # PRN R0
+        #     0b00000000,
+        #     0b00000001,  # HLT
+        # ]
+        # for instruction in program:
+        #     self.ram[address] = instruction
+        #     address += 1
+
+        address = 0
+
+        with open(filename, 'r') as f:
+            for line in f:
+                line = line.split("#")[0].strip()
+                if line == '':
+                    continue
+                self.ram[address] = int(line, 2)
+                address += 1
 
     def alu(self, op, reg_a, reg_b):
         """ALU operations."""
+        
         if op == "ADD":
             self.reg[reg_a] += self.reg[reg_b]
         elif op =='SUB':
@@ -129,3 +131,6 @@ class CPU:
             else: 
                 print("Instruction not valid")
 
+
+
+# python3 ls8.py examples/mult.ls8
