@@ -2,6 +2,16 @@
 
 import sys
 
+# instruction codes
+HLT = 0b00000001 # stop
+LDI = 0b10000010 # sets a specified register to a value
+PRN = 0b01000111 # print
+ADD = 0b10100000 # add
+SUB = 0b10100001 # subtract
+MUL = 0b10100010 # multiply
+
+
+
 class CPU:
     """Main CPU class."""
 
@@ -18,42 +28,47 @@ class CPU:
         # CPU running
         self.running = True
 
-
     def ram_read(self, address):
         # return the ram at the specified, indexed address
         return self.ram[address]
-
 
     # defining a function to overwrite the ram value at the given address
     def ram_write(self, value, address):
         # set the ram at the specified, indexed address, as the value
         self.ram[address] = value
 
-
     def load(self):
         """Load a program into memory."""
-        # instantiate address counter
+        
         address = 0
-        # open the file (f) as read ('r')
-        with open(filename, 'r') as f:
-            # loop through the lines in f
-            for line in f:
-                # set the variable line as a list of values on #, and stripped
-                line = line.split("#")[0].strip()
-                # if the line is blank
-                if line == '':
-                    # continue
-                    continue
-                # set the ram at the specified, indexed address, as the int of
-                # line 
-                self.ram[address] = int(line, 2)
-                # increment the address by one to move to the next line and ram
-                # spot
-                address += 1
+        # For now, we've just hardcoded a program:
+        program = [
+            # From print8.ls8
+            0b10000010,  # LDI R0,8
+            0b00000000,
+            0b00001000,
+            0b01000111,  # PRN R0
+            0b00000000,
+            0b00000001,  # HLT
+        ]
+        # program = []
+        # with open(file_dir) as file_obj:
+        #     program = file_obj.readlines()
+        for instruction in program:
+            self.ram[address] = instruction
+            address += 1
 
 
     def alu(self, op, reg_a, reg_b):
         """ALU operations."""
+        if op == "ADD":
+            self.reg[reg_a] += self.reg[reg_b]
+        elif op =='SUB':
+            self.reg[reg_a] -= self.reg[reg_b]
+        elif op == "MUL":
+            self.reg[reg_a] *= self.reg[reg_b]
+        else:
+            raise Exception("Unsupported ALU operation")
 
 
     def trace(self):
@@ -79,4 +94,32 @@ class CPU:
 
     def run(self):
         """Run the CPU."""
-        
+        while self.running:
+            # self.trace()
+            # instruction register
+            instruction_register = self.ram_read(self.pc)
+            # in case the instructions need them
+            operand_a, operand_b = self.ram_read(self.pc + 1), self.ram_read(self.pc + 2)
+            # perform the actions needed for instruction per the LS-8 spec
+            # halt the CPU (and exit the emulator)
+            if instruction_register == HLT:
+                self.running = False
+            # set the value of the register to an integer
+            elif instruction_register == LDI:
+                self.reg[operand_a] = operand_b
+                self.pc += 3
+            # print numeric value stored in the given register
+            elif instruction_register == PRN:
+                print(self.reg[operand_a])
+                self.pc += 2
+            elif instruction_register == ADD:
+                self.alu("ADD", operand_a, operand_b)
+                self.pc += 3
+            elif instruction_register == SUB:
+                self.alu("SUB", operand_a, operand_b)
+                self.pc += 3
+            elif instruction_register == MUL:
+                self.alu("MUL", operand_a, operand_b)
+                self.pc += 3
+            else: 
+                print("Instruction not valid")
