@@ -51,13 +51,18 @@ class CPU:
             0b00000000,
             0b00000001,  # HLT
         ]
-        # program = []
-        # with open(file_dir) as file_obj:
-        #     program = file_obj.readlines()
         for instruction in program:
             self.ram[address] = instruction
             address += 1
 
+        # address = 0
+        # with open(filename, 'r') as f:
+        #     for line in f:
+        #         line = line.split("#")[0].strip()
+        #         if line == '':
+        #             continue
+        #         self.ram[address] = int(line, 2)
+        #         address += 1
 
     def alu(self, op, reg_a, reg_b):
         """ALU operations."""
@@ -124,5 +129,3 @@ class CPU:
             else: 
                 print("Instruction not valid")
 
-
-## python ls8.py from ls8 folder
