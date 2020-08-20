@@ -9,10 +9,6 @@ PRN = 0b01000111 # print
 ADD = 0b10100000 # add
 SUB = 0b10100001 # subtract
 MUL = 0b10100010 # multiply
-CMP = 0b10100111 # compare
-JMP = 0b01010100 # jump
-JEQ = 0b01010101 # equal
-JNE = 0b01010110 # not equal
 PUSH = 0b01000101 # push onto the stack
 POP = 0b01000110 # pop off the stack
 CALL = 0b01010000 # call
@@ -129,18 +125,6 @@ class CPU:
             elif instruction_register == CMP:
                 self.alu("CMP", operand_a, operand_b)
                 self.pc += 3
-            elif instruction_register == JMP:
-                self.pc = self.reg[operand_a]
-            elif instruction_register == JEQ:
-                if self.flag == 0b00000001:
-                    self.pc = self.reg[operand_a]
-                else:
-                    self.pc += 2 
-            elif instruction_register == JNE:
-                if self.flag != 0b00000001:
-                    self.pc = self.reg[operand_a]
-                else:
-                    self.pc += 2
             elif instruction_register == PUSH:
                 # decrement the stack pointer
                 self.reg[self.sp] -= 1
