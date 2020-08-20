@@ -122,9 +122,6 @@ class CPU:
             elif instruction_register == MUL:
                 self.alu("MUL", operand_a, operand_b)
                 self.pc += 3
-            elif instruction_register == CMP:
-                self.alu("CMP", operand_a, operand_b)
-                self.pc += 3
             elif instruction_register == PUSH:
                 # decrement the stack pointer
                 self.reg[self.sp] -= 1
