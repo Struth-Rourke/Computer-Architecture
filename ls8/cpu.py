@@ -9,7 +9,14 @@ PRN = 0b01000111 # print
 ADD = 0b10100000 # add
 SUB = 0b10100001 # subtract
 MUL = 0b10100010 # multiply
-
+CMP = 0b10100111 # compare
+JMP = 0b01010100 # jump
+JEQ = 0b01010101 # equal
+JNE = 0b01010110 # not equal
+PUSH = 0b01000101 # push onto the stack
+POP = 0b01000110 # pop off the stack
+CALL = 0b01010000 # call
+RET = 0b00010001 # return
 
 class CPU:
     """Main CPU class."""
@@ -39,22 +46,6 @@ class CPU:
     def load(self, filename=None):
         """Load a program into memory."""
 
-        ## MONDAY        
-        # address = 0
-        # # For now, we've just hardcoded a program:
-        # program = [
-        #     # From print8.ls8
-        #     0b10000010,  # LDI R0,8
-        #     0b00000000,
-        #     0b00001000,
-        #     0b01000111,  # PRN R0
-        #     0b00000000,
-        #     0b00000001,  # HLT
-        # ]
-        # for instruction in program:
-        #     self.ram[address] = instruction
-        #     address += 1
-
         address = 0
 
         with open(filename, 'r') as f:
@@ -74,6 +65,13 @@ class CPU:
             self.reg[reg_a] -= self.reg[reg_b]
         elif op == "MUL":
             self.reg[reg_a] *= self.reg[reg_b]
+        elif op == "CMP":
+            if self.reg[reg_a] == self.reg[reg_b]:
+                self.flag = 0b00000001
+            elif self.reg[reg_a] < self.reg[reg_b]:
+                self.flag = 0b00000100
+            elif self.reg[reg_a] > self.reg[reg_b]:
+                self.flag = 0b00000010
         else:
             raise Exception("Unsupported ALU operation")
 
@@ -128,6 +126,47 @@ class CPU:
             elif instruction_register == MUL:
                 self.alu("MUL", operand_a, operand_b)
                 self.pc += 3
+            elif instruction_register == CMP:
+                self.alu("CMP", operand_a, operand_b)
+                self.pc += 3
+            elif instruction_register == JMP:
+                self.pc = self.reg[operand_a]
+            elif instruction_register == JEQ:
+                if self.flag == 0b00000001:
+                    self.pc = self.reg[operand_a]
+                else:
+                    self.pc += 2 
+            elif instruction_register == JNE:
+                if self.flag != 0b00000001:
+                    self.pc = self.reg[operand_a]
+                else:
+                    self.pc += 2
+            elif instruction_register == PUSH:
+                # decrement the stack pointer
+                self.reg[self.sp] -= 1
+                # store the value at that address
+                self.ram_write(self.reg[operand_a], self.reg[self.sp])
+                # increment the program counter
+                self.pc += 2
+            elif instruction_register == POP:
+                # take the value that is stored at the top of the stack
+                self.reg[operand_a] = self.ram_read(self.reg[self.sp])
+                # increment the stack pointer
+                self.reg[self.sp] += 1
+                # increment the program counter
+                self.pc += 2
+            elif instruction_register == CALL:
+                # decrement the stack pointer
+                self.reg[self.sp] -= 1
+                # push the address of the instruction after it onto the stack
+                self.ram_write(self.pc + 2, self.reg[self.sp])
+                # move the program counter to the subroutine address
+                self.pc = self.reg[operand_a]
+            elif instruction_register == RET:
+                # pop the address off the stack and store it in the program counter
+                self.pc = self.ram_read(self.reg[self.sp])
+                # increment the stack pointer
+                self.reg[self.sp] += 1
             else: 
                 print("Instruction not valid")
 
